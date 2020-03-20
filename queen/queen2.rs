@@ -8,34 +8,31 @@ fn clock_realtime() -> i64 {
     return since_the_epoch.as_millis() as i64;
 }
 
-fn array_check(array: &[i32], row: i32) -> bool 
-{
+fn array_check(array: &[i32], row: i32) -> bool {
     if row == 0 {
         return true;
     }
-    else {
-        let x0 = array[row as usize];
-        for y in 0..row {
-            let x = array[y as usize];
-            if x == x0 {
-                return false;
-            }
-            else if x - x0 == row - y {
-                return false;
-            }
-            else if x0 - x == row - y {
-                return false;
-            }
+
+    let x0 = array[row as usize];
+    for (y, &x) in (&array[..row as usize]).iter().enumerate() {
+        if x == x0 {
+            return false;
         }
-        return true;
+        else if (x - x0).abs() == row - y as i32 {
+            return false;
+        }
     }
+
+    true
 }
 
-fn search(array: &mut[i32], row: i32) -> i32 
-{
+fn search(array: &mut [i32], row: i32) -> i32 {
     let mut found = 0;
-    for i in 0..N {
-        array[row as usize] = i;
+    assert!((row as usize) < array.len());
+
+    for i in 0..array.len() {
+        array[row as usize] = i as i32;
+
         if array_check(array, row) {
             if row == N - 1 {
                 found += 1;
@@ -44,18 +41,16 @@ fn search(array: &mut[i32], row: i32) -> i32
             }
         }
     }
-    return found;
+
+    found
 }
 
-fn queen() -> i32 
-{
-    let mut array = [0;N as usize];
-    return search(&mut array, 0);
+fn queen() -> i32 {
+    let mut array = [0; N as usize];
+    search(&mut array, 0)
 }
 
-fn main()
-{
-    queen();
+fn main() {
     let ts = clock_realtime();
     let found = queen();
     let dt = clock_realtime() - ts;
